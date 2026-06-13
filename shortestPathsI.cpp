@@ -1,104 +1,50 @@
 #include <bits/stdc++.h>
-#include <stdlib.h>
-#include <time.h>
-
 using namespace std;
-long long mod = 1e9 + 7;
-double EPS = 1e-12;
-typedef long long int lld;
-typedef pair<lld, lld> PA;
-long double tick()
-{
-    static clock_t oldt;
-    clock_t newt = clock();
-    long double diff = 1.0L * (newt - oldt) / CLOCKS_PER_SEC;
-    oldt = newt;
-    return diff;
-}
-#define rep(i, a, n) for (long long int i = (a); i <= (n); ++i)
-#define repI(i, a, n) for (int i = (a); i <= (n); ++i)
-#define repD(i, a, n) for (long long int i = (a); i >= (n); --i)
-#define repDI(i, a, n) for (int i = (a); i >= (n); --i)
-inline lld sc()
-{
-    lld a;
-    scanf("%lld", &a);
-    return a;
-}
-inline int scd()
-{
-    int a;
-    scanf("%d", &a);
-    return a;
-}
-#define prL(a) printf("%lld\n", a)
-#define prS(a) printf("%lld ", a)
-#define prdL(a) printf("%d\n", a)
-#define prdS(a) printf("%d ", a)
-#define all(c) (c).begin(), (c).end()
-#define sz(a) ((int)a.size())
-#ifdef LOCAL_RUN
-#define Error(x...)              \
-    {                            \
-        cout << "(" << #x << ")" \
-             << " = ( ";         \
-        printIt(x);              \
-    }
-#else
-#define Error(x...) 42
+
+typedef long long ll;
+
+
+const ll MOD = 1e9 + 7;
+const ll INF = 9223372036854775807;
+#define FAST_EXECUTION
+#ifdef FAST_EXECUTION
+#pragma GCC optimize("O3")
+#pragma comment(linker, "/stack:247474112")
 #endif
-template <typename T1>
-void printIt(T1 t1)
-{
-    cout << t1 << " )" << endl;
-}
-template <typename T1, typename... T2>
-void printIt(T1 t1, T2... t2)
-{
-    cout << t1 << " , ";
-    printIt(t2...);
-}
-#define popcount __builtin_popcountll
 
-#define lim 1000010
-#define lim2 200010
-// std::ios::sync_with_stdio(false); // Ab :)
-
-int A[lim];
-vector<int> G[lim], W[lim];
-
-// Dijsktra
-int main()
-{
-    int n = scd(), m = scd();
-    while (m--)
-    {
-        int a = scd(), b = scd();
-        G[a].push_back(b);
-        W[a].push_back(scd());
+void Main() {
+    ll n, m; cin >> n >> m;
+    vector<vector<pair<ll, ll>>> g(n);
+    for (ll i = 0; i < m; i++) {
+        ll a, b, c; cin >> a >> b >> c; a--, b--;
+        g[a].push_back({b, c});
     }
-    priority_queue<PA, vector<PA>, greater<PA>> Q;
-    vector<lld> Dis(n + 1, LLONG_MAX), visit(n + 1, 0);
-    Q.emplace(0, 1);
-    Dis[1] = 0;
-    while (!Q.empty())
-    {
-        auto [dis, u] = Q.top();
-        Q.pop();
-        if (visit[u] == 1)
-            continue;
-        visit[u] = 1;
-        int sz = G[u].size();
-        repI(i, 0, sz - 1)
-        {
-            auto [v, weight] = make_pair(G[u][i], W[u][i]);
-            if (dis + weight < Dis[v])
-            {
-                Dis[v] = dis + weight;
-                Q.emplace(Dis[v], v);
+    priority_queue<pair<ll, ll>, vector<pair<ll, ll>>, greater<pair<ll, ll>>> q;
+    vector<ll> dist(n, INF);
+    dist[0] = 0;
+    q.push({0, 0});
+    while (!q.empty()) {
+        auto [d, u] = q.top();
+        q.pop();
+        if (d != dist[u]) continue; // stale
+        for (auto [v, wt] : g[u]) {
+            if (dist[v] > d + wt) {
+                dist[v] = d + wt;
+                q.push({dist[v], v});
             }
         }
     }
-    rep(i, 1, n) prS(Dis[i]);
+    for (auto x : dist) cout << x << " "; 
+    cout << endl;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t = 1;
+    while (t--) {
+        Main();
+    }
     return 0;
 }
