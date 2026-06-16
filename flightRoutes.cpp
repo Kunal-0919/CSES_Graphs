@@ -1,102 +1,59 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define PB push_back
-#define MP make_pair
-#define REP(i, a, n) for (int i = a; i <= n; i++)
-#define SQ(a) (a) * (a)
-#define rep(i, n) for (int i = 0; i < (int)(n); ++i)
-#define rep1(i, n) for (int i = 1; i <= (int)(n); ++i)
-#define range(x) begin(x), end(x)
-#define sz(x) (int)(x).size()
-#define endl '\n'
-#define F first
-#define S second
+ 
 typedef long long ll;
-typedef long double lld;
-typedef unsigned long long ull;
-typedef vector<int> vi;
-typedef vector<ll> vl;
-typedef vector<bool> vb;
-typedef vector<vector<ll>> vvl;
-typedef vector<vector<bool>> vvb;
-typedef set<ll> si;
-typedef set<ll> sl;
-typedef pair<ll, ll> pii;
-typedef pair<ll, ll> pll;
-typedef vector<pii> vpi;
-typedef vector<pll> vpl;
-typedef priority_queue<ll> maxHeap;
-typedef priority_queue<ll, vl, greater<ll>> minHeap;
-typedef map<ll, ll> mii;
-typedef map<string, ll> msi;
-
-void setIO(string name = "")
-{
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
-    cin.tie(0)->sync_with_stdio(0);
-    cout.tie(0);
-}
-
-const lld pi = 3.14159265358979323846;
-ll mod = 1e9 + 7;
-
-ll n, m, k;
-vector<vpl> g;
-
-void solve()
-{
-    cin >> n >> m >> k;
-    g.assign(n, vpl());
-    for (ll i = 0; i < m; i++)
-    {
-        ll a, b, c;
-        cin >> a >> b >> c;
+ 
+ 
+const ll MOD = 1e9 + 7;
+const ll INF = 9223372036854775807;
+#define FAST_EXECUTION
+#ifdef FAST_EXECUTION
+#pragma GCC optimize("O3")
+#pragma comment(linker, "/stack:247474112")
+#endif
+ 
+void Main() {
+    ll n, m, k; cin >> n >> m >> k;
+    vector<vector<pair<ll, ll>>> g(n);
+    for(ll i = 0;i < m;i++) {
+        ll a, b, c;cin >> a >> b >> c;
         a--, b--;
         g[a].push_back({b, c});
     }
-    priority_queue<vl, vvl, greater<vl>> q;
+    priority_queue<pair<ll, ll>, vector<pair<ll, ll>>, greater<pair<ll, ll>>> q;
     q.push({0, 0});
-    vector<priority_queue<ll>> maxH(n);
-    maxH[0].push(0);
-    while (!q.empty())
-    {
-        ll d = q.top()[0], node = q.top()[1];
-        q.pop();
-        if (maxH[node].size() > 0 && maxH[node].top() < d)
-            continue;
-        for (auto x : g[node])
+    vector<priority_queue<ll>> maxh(n); maxh[0].push(0);
+    while(!q.empty()) {
+        pair<ll, ll> top = q.top();q.pop();
+        ll d = top.first, curr = top.second;
+        if(!maxh[curr].empty() && maxh[curr].top() < d) continue;
+        for(auto [x, w] : g[curr]) 
         {
-            if (maxH[x.F].size() < k || x.S + d < maxH[x.F].top())
-            {
-                if (maxH[x.F].size() == k)
-                    maxH[x.F].pop();
-                maxH[x.F].push(x.S + d);
-                q.push({x.S + d, x.F});
+            if(maxh[x].size() < k || w + d < maxh[x].top()) {
+                maxh[x].push(w + d);
+                while(maxh[x].size() > k) maxh[x].pop();
+                q.push({w + d, x});
             }
         }
     }
-
-    vl res;
-    while (!maxH[n - 1].empty())
-    {
-        res.PB(maxH[n - 1].top());
-        maxH[n - 1].pop();
+    ll i = 0;
+    vector<ll> ans(k);
+    while(!maxh[n - 1].empty()) {
+        ans[i++] = maxh[n-1].top();maxh[n - 1].pop();
     }
-
-    reverse(range(res));
-    for (auto x : res)
-        cout << x << " ";
+    reverse(ans.begin(), ans.end());
+    for(auto x : ans) cout << x << " ";
     cout << endl;
 }
-
-int main()
-{
-    setIO();
-    ll t = 1;
-    // t--;
-    while (t--)
-    {
-        solve();
+ 
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    int t = 1;
+    // cin >> t;
+    while(t--) {
+        Main();
     }
+    return 0;
 }
