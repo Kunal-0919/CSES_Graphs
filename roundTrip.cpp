@@ -15,6 +15,7 @@ const ll INF = 9223372036854775807;
 vector<int> ans;
 
 void dfs(int node, int p, vector<vector<int>> &g, vector<bool>&vis, vector<int>&par) {
+    if(!ans.empty()) return;
     vis[node] = true; par[node] = p;
     for(auto x: g[node]) {
         if(x == p) continue;
