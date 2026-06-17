@@ -598,5 +598,18 @@ while(!q.empty()) {
     }
 }
 ```
+> BONUS TOPIC - BINARY LIFTING
 
+Binary Lifting is a technique for answering "where i'll be after k jumps?"
+very fast.
+
+Instead of moving one step at a time, we precompute jumps of 1, 2, 4, 8, 16...
+
+USACO guide describes this as precomputing the (2^k - 1) ancestor or 
+successor, so later each query can be answered efficiently.
+
+Suppose we want to move 13 steps backward, we can divide 13 into: 8 + 4 + 1
+
+We have precomputed values of 8, 4, 1 step backward we can answer each query 
+in O(1).
 
