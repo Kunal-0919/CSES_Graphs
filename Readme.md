@@ -597,9 +597,9 @@ while(!q.empty()) {
         }
     }
 }
-
 ```
 
+```
 Binary Lifting is a technique for answering "where i'll be after k jumps?"
 very fast.
 
