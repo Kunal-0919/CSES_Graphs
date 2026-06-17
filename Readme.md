@@ -599,7 +599,11 @@ while(!q.empty()) {
 }
 ```
 
+## Planet Queries
+
 ```
+> BONUS TOPIC - BINARY LIFTING
+
 Binary Lifting is a technique for answering "where i'll be after k jumps?"
 very fast.
 
@@ -612,4 +616,82 @@ Suppose we want to move 13 steps backward, we can divide 13 into: 8 + 4 + 1
 
 We have precomputed values of 8, 4, 1 step backward we can answer each query 
 in O(1).
+```
+
+For this problem, every planet has one outgoing teleporter. That means the destination from any planet after 1 jump is fixed.
+
+We can maintain: 
+
+```
+up[x][j] := planet reached from x after 2 ^ j jumps
+
+up[x][0] = planet reached from x after 1 jump.
+up[x][1] = planet reached from x after 2 jumps.
+up[x][2] = planet reached from x after 4 jumps.
+up[x][3] = planet reached from x after 8 jumps.
+```
+The important recurrence is: 
+
+```
+up[x][j] = up[up[x][j - 1]][j - 1]
+```
+This means, to jump `2^j` steps from x, first jump `2^ j - 1` jumps, then from there jump another `2^j - 1` jumps.
+
+So, this `up[][]` data structure can be built using Dynamic Programming.
+
+In this problem, the question is jumping forwards, and not reaching back its ancestor. But the idea is identical.
+
+**ALGORITHM**
+
+- Create a dp array: `dp[n][LOG]`. LOG should be large enough to cover all k such that 2^LOG > k(maximum value inside the constraint).
+- Store base case/direct teleporters.
+`dp[i][0] = t[i]` 
+- Build the table: 
+`dp[i][j] = dp[dp[i][j - 1]][j - 1]` 
+- Then the steps are simply, divide each query into sums of powers of 2 with minimum additions. Take every bit in the number for each query. And answer each query, for all those bits.
+
+```cpp []
+ll dp[n + 1][32];
+memset(dp, 0, sizeof(dp));
+for(ll i = 0;i < n;i++) dp[i + 1][0] = v[i];
+
+for(ll j = 1;j < 32;j++) {
+    for(ll i = 1;i <= n;i++) {
+        dp[i][j] = dp[dp[i][j - 1]][j - 1];
+    }
+}
+// for(auto x : dp)  {
+//     for(auto y : x) cout << y << " ";
+//     cout << endl;
+// }
+while(q--) {
+    ll node, k;cin >> node >> k;
+    for(ll i = 0;i < 32;i++) {
+        if(k & (1LL << i)) {
+            node = dp[node][i];
+        }
+    }
+    cout << node << "\n";
+}ll dp[n + 1][32];
+memset(dp, 0, sizeof(dp));
+for(ll i = 0;i < n;i++) dp[i + 1][0] = v[i];
+
+for(ll j = 1;j < 32;j++) {
+    for(ll i = 1;i <= n;i++) {
+        dp[i][j] = dp[dp[i][j - 1]][j - 1];
+    }
+}
+// for(auto x : dp)  {
+//     for(auto y : x) cout << y << " ";
+//     cout << endl;
+// }
+while(q--) {
+    ll node, k;cin >> node >> k;
+    for(ll i = 0;i < 32;i++) {
+        if(k & (1LL << i)) {
+            node = dp[node][i];
+        }
+    }
+    cout << node << "\n";
+}
 ```
