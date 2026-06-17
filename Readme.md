@@ -597,8 +597,8 @@ while(!q.empty()) {
         }
     }
 }
+
 ```
-> BONUS TOPIC - BINARY LIFTING
 
 Binary Lifting is a technique for answering "where i'll be after k jumps?"
 very fast.
@@ -612,4 +612,4 @@ Suppose we want to move 13 steps backward, we can divide 13 into: 8 + 4 + 1
 
 We have precomputed values of 8, 4, 1 step backward we can answer each query 
 in O(1).
-
+```
