@@ -507,3 +507,96 @@ for(ll curr : topo) {
 ```
 
 
+## Game Routes
+We need to find number of ways we can get to 1 to n in a DAG(topo sort???)
+
+We topologically sort the nodes inside the graph. Then we can use DP on graphs to find the total number of ways.
+
+> STATE
+
+```
+dp[n] = Number of ways to get to node n
+```
+> Transition
+
+```
+dp[neighbour] += dp[current_node]
+```
+```cpp []
+vector<ll> dp(n);
+dp[0] = 1;
+for(auto x : topo) {
+    for(auto v : g[x]) {
+        dp[v] = (dp[x] + dp[v]) % MOD;
+    }
+}
+```
+
+
+## Investigations
+what is the minimum price of such a route? --> DJIKSTRA
+
+how many minimum-price routes are there? (modulo 1e9 + 7) -->  DP
+
+what is the minimum number of flights in a minimum-price route? --> DP 
+
+what is the maximum number of flights in a minimum-price route? --> DP
+
+```
+dist[n - 1], ways[n - 1], miniFlights[n - 1], maxiFlights[n - 1]
+dist[0] = 0, ways[0] = 1, miniFlights[0] = 0, maxiFlights[0] = 0
+
+MinHeap q;
+q.push({0, 0});
+while(!q.empty()) {
+  ll d, u = q.top();q.pop();
+  if(d != dist[u]) continue; // stale value
+  
+  for(auto [v, w] : g[u]) {
+    if(w + d < dist[v]) {
+      dist[v] = d + w;
+      ways[v] = ways[u];
+      miniFlights[v] = miniFlights[u] + 1;
+      maxiFlights[v] = maxiFlights[u] + 1;
+      q.push({{w + d, v}});
+    } else if(w + d == dist[v]) {
+      ways[v] += ways[u] % mod;
+      miniFlights[v] = min(miniFlights[v], 1 + miniFligts[u]);
+      maxiFlights[v] = max(maxiFlights[v], 1 + maxiFligts[u]);
+    }
+  }
+}
+```
+```cpp []
+vector<ll> dist(n, LLONG_MAX); dist[0] = 0;
+vector<ll> ways(n, 0); ways[0] = 1;
+vector<ll> miniFlights(n, LLONG_MAX);
+vector<ll> maxiFlights(n, LLONG_MIN);
+priority_queue<pair<ll, ll>, vector<pair<ll,ll>>, greater<pair<ll, ll>>> q;
+q.push({0, 0});
+miniFlights[0] = 0;
+maxiFlights[0] = 0;
+
+while(!q.empty()) {
+    pair<ll, ll> top = q.top();q.pop();
+    ll d = top.first, curr = top.second;
+    if(d != dist[curr]) continue;
+    for(auto [v, w] : g[curr]) {
+        ll newDist = dist[curr] + w;
+        if(newDist < dist[v]) {
+            dist[v] = newDist;
+            ways[v] = ways[curr];
+            miniFlights[v] = 1 + miniFlights[curr];
+            maxiFlights[v] = 1 + maxiFlights[curr];
+            q.push({newDist, v});
+        } else if(newDist == dist[v]) {
+            ways[v] = (ways[v] + ways[curr]) % MOD;
+            miniFlights[v] = min(miniFlights[curr] + 1, miniFlights[v]);
+            maxiFlights[v] = max(maxiFlights[curr] + 1, maxiFlights[v]);
+
+        }
+    }
+}
+```
+
+
