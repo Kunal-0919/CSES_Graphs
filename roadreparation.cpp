@@ -1,137 +1,91 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define PB push_back
-#define MP make_pair
-#define REP(i, a, n) for (int i = a; i <= n; i++)
-#define SQ(a) (a) * (a)
-#define rep(i, n) for (int i = 0; i < (int)(n); ++i)
-#define rep1(i, n) for (int i = 1; i <= (int)(n); ++i)
-#define range(x) begin(x), end(x)
-#define sz(x) (int)(x).size()
-#define endl '\n'
-#define F first
-#define S second
+
 typedef long long ll;
-typedef long double lld;
-typedef unsigned long long ull;
-typedef vector<int> vi;
-typedef vector<ll> vl;
-typedef vector<bool> vb;
-typedef vector<vector<ll>> vvl;
-typedef vector<vector<bool>> vvb;
-typedef set<ll> si;
-typedef set<ll> sl;
-typedef pair<ll, ll> pii;
-typedef pair<ll, ll> pll;
-typedef vector<pii> vpi;
-typedef vector<pll> vpl;
-typedef priority_queue<ll> maxHeap;
-typedef priority_queue<ll, vl, greater<ll>> minHeap;
-typedef map<ll, ll> mii;
-typedef map<string, ll> msi;
 
-void setIO(string name = "")
-{
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
-    cin.tie(0)->sync_with_stdio(0);
-    cout.tie(0);
-    // if (sz(name))
-    // {
-    // freopen((name + ".in").c_str(), "r", stdin);
-    // freopen((name + ".out").c_str(), "w", stdout);
-    // }
-}
 
-const lld pi = 3.14159265358979323846;
-ll mod = 1e9 + 7;
+const ll MOD = 1e9 + 7;
+const ll INF = 9223372036854775807;
+#define FAST_EXECUTION
+#ifdef FAST_EXECUTION
+#pragma GCC optimize("O3")
+#endif
 
-// ******************************** DSU ********************************
-class DSU
-{
-private:
-    vl size, par;
-
-public:
-    DSU(ll n)
-    {
-        size.assign(n, 1);
+class DSU {
+    private:
+    vector<ll> par, size;
+    ll cnt;
+    public:
+    DSU(int n) {
         par.resize(n);
-        for (ll i = 0; i < n; i++)
-            par[i] = i;
+        size.resize(n, 1);
+        cnt = n;
+        for(ll i = 0;i < n;i++) par[i] = i;
     }
 
-    ll find(ll n)
-    {
-        if (n == par[n])
-            return n;
-        return par[n] = find(par[n]);
+    ll find(ll node) {
+        if(par[node] == node) return node;
+        return par[node] = find(par[node]);
     }
 
-    void unionBySize(ll a, ll b)
-    {
-        a = find(a);
-        b = find(b);
+    bool unite(ll a, ll b) {
+        ll rootA = find(a), rootB = find(b);
+        if(rootA == rootB) return false;
+        a = rootA, b = rootB;
+        if(size[a] < size[b]) {
+            swap(a, b);
+        }
+        par[b] = a;
+        size[a] += size[b];
+        cnt--;
+        return true;
+    }
 
-        if (a == b)
-            return;
-        if (size[a] >= size[b])
-        {
-            size[a] += size[b];
-            par[b] = a;
-            size[a] += size[b];
-            par[b] = a;
-        }
-        else
-        {
-            size[b] += size[a];
-            par[a] = b;
-        }
+    bool same(ll a, ll b) {
+        return find(a) == find(b);
+    }
+
+    ll get_size(ll a) {
+        return size[find(a)];
+    }
+
+    ll get_cnt() {
+        return cnt;
+    }
+    vector<ll> get_par() {
+        return par;
     }
 };
 
-// ******************************** DSU ********************************
-
-void solve()
-{
-    ll n, m;
-    cin >> n >> m;
-    set<vl> st;
-    for (ll i = 0; i < m; i++)
-    {
-        ll a, b, x;
-        cin >> a >> b >> x;
-        a--, b--;
-        st.insert({x, a, b});
+void Main() {
+    ll n, m;cin >> n >> m;vector<vector<ll>> edges(m);
+    for(ll i = 0;i < m;i++) {
+        ll a, b, c;cin >> a >> b >> c;a--, b--;
+        edges[i] = {c, a, b};
     }
+    sort(edges.begin(), edges.end());
+    ll total_cost = 0, edges_used = 0;
     DSU dsu(n);
-    ll ans = 0, cnt = 0;
-    for (auto x : st)
-    {
-        ll c = x[0];
-        ll a = x[1], b = x[2];
-        if (dsu.find(a) != dsu.find(b))
-        {
-            dsu.unionBySize(a, b);
-            ans += c;
-            cnt++;
+    for(auto x : edges) {
+        ll w = x[0], u = x[1], v = x[2];
+        if(dsu.unite(u, v)) {
+            total_cost += w;
+            edges_used++;
         }
     }
-    if (cnt == n - 1)
-    {
-        cout << ans << endl;
-    }
-    else
-        cout << "IMPOSSIBLE" << endl;
+
+    if(edges_used == n - 1) cout << total_cost << "\n";
+    else cout << "IMPOSSIBLE" << endl;
 }
 
-int main()
-{
-    setIO();
-    ll t = 1;
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    int t = 1;
     // cin >> t;
-    while (t--)
-    {
-        solve();
+    while(t--) {
+        Main();
     }
+    return 0;
 }
