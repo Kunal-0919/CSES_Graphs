@@ -301,7 +301,7 @@ cout << endl;
 ## Shortest Routes II
 Multi-source Shortest Path Algorithm. Floyd-Warshall Algorithm
 
-```
+```cpp []
 vector<vector<ll>> dist(n + 1, vector<ll>(n + 1, LLONG_MAX));
 while (m--)
 {
