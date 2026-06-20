@@ -660,10 +660,6 @@ for(ll j = 1;j < 32;j++) {
         dp[i][j] = dp[dp[i][j - 1]][j - 1];
     }
 }
-// for(auto x : dp)  {
-//     for(auto y : x) cout << y << " ";
-//     cout << endl;
-// }
 while(q--) {
     ll node, k;cin >> node >> k;
     for(ll i = 0;i < 32;i++) {
@@ -672,26 +668,240 @@ while(q--) {
         }
     }
     cout << node << "\n";
-}ll dp[n + 1][32];
-memset(dp, 0, sizeof(dp));
-for(ll i = 0;i < n;i++) dp[i + 1][0] = v[i];
+}
+```
 
-for(ll j = 1;j < 32;j++) {
-    for(ll i = 1;i <= n;i++) {
-        dp[i][j] = dp[dp[i][j - 1]][j - 1];
+## Road Reparation
+
+Minimum spanning tree question
+
+```cpp []
+sort(edges.begin(), edges.end());
+ll total_cost = 0, edges_used = 0;
+DSU dsu(n);
+for(auto x : edges) {
+    ll w = x[0], u = x[1], v = x[2];
+    if(dsu.unite(u, v)) {
+        total_cost += w;
+        edges_used++;
     }
 }
-// for(auto x : dp)  {
-//     for(auto y : x) cout << y << " ";
-//     cout << endl;
-// }
-while(q--) {
-    ll node, k;cin >> node >> k;
-    for(ll i = 0;i < 32;i++) {
-        if(k & (1LL << i)) {
-            node = dp[node][i];
+
+if(edges_used == n - 1) cout << total_cost << "\n";
+```
+
+## Road Construction
+
+DSU question
+
+```cpp []
+class DSU {
+    private:
+    vector<ll> par, size;
+    ll cnt, maxi;
+    public:
+    DSU(int n) {
+        par.resize(n);
+        size.resize(n, 1);
+        cnt = n;
+        maxi = 1;
+        for(ll i = 0;i < n;i++) par[i] = i;
+    }
+    ll find(ll node) {
+        if(par[node] == node) return node;
+        return par[node] = find(par[node]);
+    }
+    bool unite(ll a, ll b) {
+        ll rootA = find(a), rootB = find(b);
+        if(rootA == rootB) return false;
+        a = rootA, b = rootB;
+        if(size[a] < size[b]) {
+            swap(a, b);
+        }
+        par[b] = a;
+        size[a] += size[b];
+        maxi = max(maxi, size[a]);
+        cnt--;
+        return true;
+    }
+    bool same(ll a, ll b) { return find(a) == find(b); }
+    ll get_size(ll a) { return size[find(a)]; }
+    ll get_cnt() { return cnt; }
+    vector<ll> get_par() { return par; }
+    ll max_sz_component() { return maxi; }
+};
+```
+
+Kosaraju Algorithm
+
+Algorithm to find strongly connected components inside a Directed Graph.
+
+A strongly connected component is a group of nodes where every other node can visit every other node.
+
+Expample:
+
+1 -> 2 -> 5 -> 6
+^    |
+|    v
+4 <- 3
+
+From this above graph: 
+
+1 -> 2
+^    |
+|    v
+4 <- 3   ,    5   ,   6 are strongly connected components
+
+Here, [1, 2, 3, 4] are one SCC because all of them are mutually reachable.
+
+Kosaraju uses two DFS passes.
+Main idea
+1. For a directed graph:
+2. Run DFS on the original graph and store nodes by finish time.
+3. Reverse all edges.
+4. Process nodes in decreasing finish time on the reversed graph.
+5. Each DFS in the reversed graph gives one SCC.
+Step 1: DFS on original graph
+
+1. Run DFS and push a node into order after visiting all its outgoing neighbors.
+```cpp []
+void dfs1(int u) {
+    visited[u] = true;
+
+    for (int v : g[u]) {
+        if (!visited[v]) {
+            dfs1(v);
         }
     }
-    cout << node << "\n";
+    order.push_back(u); // after finishing u
 }
+This gives nodes ordered by finishing time.
+```
+
+2. Step 2: Reverse the graph
+For every edge:
+u -> v
+add:
+v -> u
+to the reversed graph.
+```cpp []
+g[u].push_back(v);
+rg[v].push_back(u);
+Usually you build both graphs while reading input.
+```
+
+3. Step 3: DFS on reversed graph
+Process nodes from order in reverse.
+Each DFS finds exactly one SCC.
+```cpp []
+void dfs2(int u, int componentId) {
+    comp[u] = componentId;
+
+    for (int v : rg[u]) {
+        if (comp[v] == -1) {
+            dfs2(v, componentId);
+        }
+    }
+}
+```
+
+Then:
+```cpp []
+reverse(order.begin(), order.end());
+
+int componentId = 0;
+
+for (int u : order) {
+    if (comp[u] == -1) {
+        dfs2(u, componentId);
+        componentId++;
+    }
+}
+```
+
+Full Structure:
+```cpp []
+vector<vector<int>> g, rg;
+vector<int> visited, order, comp;
+
+void dfs1(int u) {
+    visited[u] = 1;
+
+    for (int v : g[u]) {
+        if (!visited[v]) dfs1(v);
+    }
+
+    order.push_back(u);
+}
+
+void dfs2(int u, int cid) {
+    comp[u] = cid;
+
+    for (int v : rg[u]) {
+        if (comp[v] == -1) dfs2(v, cid);
+    }
+}
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+
+    g.resize(n);
+    rg.resize(n);
+
+    for (int i = 0; i < m; i++) {
+        int a, b;
+        cin >> a >> b;
+        --a; --b;
+
+        g[a].push_back(b);
+        rg[b].push_back(a);
+    }
+
+    visited.assign(n, 0);
+
+    for (int i = 0; i < n; i++) {
+        if (!visited[i]) dfs1(i);
+    }
+
+    comp.assign(n, -1);
+
+    reverse(order.begin(), order.end());
+
+    int cid = 0;
+
+    for (int u : order) {
+        if (comp[u] == -1) {
+            dfs2(u, cid);
+            cid++;
+        }
+    }
+
+    // comp[i] tells which SCC node i belongs to
+    // cid is the total number of SCCs
+}
+```
+
+## Flights Route Check
+
+Use SCC algorithm.
+
+```cpp []
+vector<bool> vis(n);
+dfs(0, g, vis);
+for(ll i = 0;i < n;i++) {
+    if(!vis[i]) {
+        cout << "NO" << endl;
+        cout << 1 << " " << i + 1 << endl;return;
+    }
+}
+vis.assign(n, false);
+dfs(0, G, vis);
+for(ll i = 0;i < n;i++) {
+    if(!vis[i]) {
+        cout << "NO" << endl;
+        cout << i + 1 << " " << 1 << endl;return;
+    }
+}
+cout << "YES" << endl;
 ```

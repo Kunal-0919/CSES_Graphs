@@ -11,38 +11,35 @@ const ll INF = 9223372036854775807;
 #pragma GCC optimize("O3")
 #endif
 
-
-void dfs(ll node, vector<bool>&vis, vector<vector<ll>>&g) {
+void dfs(ll node, vector<vector<ll>>&g, vector<bool>&vis) {
     vis[node] = true;
-    for(auto x : g[node]) {
-        if(!vis[x]) dfs(x, vis, g);
+    for(auto x: g[node]) {
+        if(!vis[x]) dfs(x, g, vis);
     }
+    // order.push_back(node);
 }
 
+
 void Main() {
-    ll n, m;cin >> n >> m;
-    vector<vector<ll>> g(n), G(n);
+    ll n, m;cin >> n >> m; vector<vector<ll>> g(n), G(n);
     for(ll i = 0;i < m;i++) {
-        ll a, b;cin >> a >> b; a--, b--;
-        g[a].push_back(b);
-        G[b].push_back(a);
+        ll a, b;cin >> a >> b;a--, b--;
+        g[a].push_back(b); G[b].push_back(a);
     }
-    vector<bool> vis(n, false);
-    dfs(0, vis, g);
+    vector<bool> vis(n);
+    dfs(0, g, vis);
     for(ll i = 0;i < n;i++) {
         if(!vis[i]) {
             cout << "NO" << endl;
-            cout << 1 << " " << i + 1 << endl;
-            return;
+            cout << 1 << " " << i + 1 << endl;return;
         }
     }
     vis.assign(n, false);
-    dfs(0, vis, G);
+    dfs(0, G, vis);
     for(ll i = 0;i < n;i++) {
         if(!vis[i]) {
             cout << "NO" << endl;
-            cout << i + 1 << " " << 1 << endl;
-            return;
+            cout << i + 1 << " " << 1 << endl;return;
         }
     }
     cout << "YES" << endl;
