@@ -905,3 +905,27 @@ for(ll i = 0;i < n;i++) {
 }
 cout << "YES" << endl;
 ```
+
+## Planets & Kingdoms
+
+SCC algorithm question.
+
+```cpp []
+void dfs1(ll node, vector<vector<ll>>&g, vector<bool>&vis, vector<ll> &order) {
+    vis[node] = true;
+    for(auto v : g[node]) {
+        if(!vis[v]) dfs1(v, g, vis, order);
+    }
+    order.push_back(node);
+}
+
+void dfs2(ll node, vector<vl>&g, vl &comp, ll cid) {
+    comp[node] = cid;
+    for(auto x : g[node]) {
+        if(comp[x] == -1) dfs2(x, g, comp, cid);
+    }
+}
+```
+
+vl comp will contain the scc-id for each node, which can be used to print all the nodes kingdoms.
+
