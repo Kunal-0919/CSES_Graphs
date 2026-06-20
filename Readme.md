@@ -929,3 +929,48 @@ void dfs2(ll node, vector<vl>&g, vl &comp, ll cid) {
 
 vl comp will contain the scc-id for each node, which can be used to print all the nodes kingdoms.
 
+## Coin Collector
+
+1. We can form SCCs and create a new graph and weights array that stores all the coins inside a single SCC out of the `comp` array of size `cid`.
+2. After creating that, since the new graph will always be a DAG, we can topologically sort the new graph, and then find the answer using DP.
+
+```cpp []
+vector<vl> graph(cid);
+vl in(cid);
+for(auto x : edges) {
+    ll a = x[0], b = x[1];
+    ll kingdom_a = comp[a], kingdom_b = comp[b];
+    if(kingdom_a == kingdom_b) continue;
+    graph[kingdom_a].push_back(kingdom_b);
+    in[kingdom_b]++;
+}
+vl weights(cid);
+for(ll i = 0;i < n;i++) {
+    weights[comp[i]] += v[i];
+}
+
+// now we do topo sort
+queue<ll> q;vl topo;
+vl dp(cid, LLONG_MIN);
+for(ll i = 0;i < cid;i++) {
+    dp[i] = weights[i];
+    if(in[i] == 0) {
+        q.push(i);
+    }
+}
+while(!q.empty()) {
+    ll curr = q.front();q.pop();
+    topo.push_back(curr);
+    for(auto x : graph[curr]) {
+        in[x]--;
+        if(in[x]) continue;
+        q.push(x);
+    }
+}
+
+for(auto x : topo) {
+    for(auto v : graph[x]) {
+        dp[v] = max(dp[v], dp[x] + weights[v]);
+    }
+}
+```
